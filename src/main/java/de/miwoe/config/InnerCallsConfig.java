@@ -1,4 +1,4 @@
-package de.miwoe;
+package de.miwoe.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,7 +19,7 @@ import java.util.UUID;
 public class InnerCallsConfig {
 
     public static final ThreadLocal<UUID> correlationId = new ThreadLocal<UUID>();
-    public static final ThreadLocal<String> service = new ThreadLocal<>();
+    public static final ThreadLocal<String> requestTraceInfo = new ThreadLocal<>();
 
     @Bean
     RestTemplate restTemplate() {
@@ -29,10 +29,10 @@ public class InnerCallsConfig {
             public ClientHttpResponse intercept(HttpRequest httpRequest, byte[] body, ClientHttpRequestExecution clientHttpRequestExecution) throws IOException {
                 HttpRequestWrapper requestWrapper = new HttpRequestWrapper(httpRequest);
                 if (correlationId != null && correlationId.get() != null) {
-                    requestWrapper.getHeaders().set("correlationId", correlationId.get().toString());
-                    requestWrapper.getHeaders().set("serviceName", service.get());
+                    requestWrapper.getHeaders().set(HTTPHeaderConstants.CORRELATION_ID, correlationId.get().toString());
+                    requestWrapper.getHeaders().set(HTTPHeaderConstants.REQUEST_TRACE_INFO, requestTraceInfo.get());
                 }else {
-                    requestWrapper.getHeaders().set("correlationId", "notset");
+                    requestWrapper.getHeaders().set(HTTPHeaderConstants.CORRELATION_ID, "notset");
 
                 }
                 return clientHttpRequestExecution.execute(requestWrapper, body);

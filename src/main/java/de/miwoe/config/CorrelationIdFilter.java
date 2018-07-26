@@ -1,4 +1,4 @@
-package de.miwoe;
+package de.miwoe.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,32 +20,33 @@ public class CorrelationIdFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-
+        // Nothing to init here
     }
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-        String correlationId = httpServletRequest.getHeader("correlationId");
-        String serviceName = httpServletRequest.getHeader("serviceName");
-        log.info("Filter " + httpServletRequest.getMethod()+":"+ httpServletRequest.getRequestURI()+" executed. CorrelationId = {}, OriginService = {}", correlationId, serviceName);
+        String correlationId = httpServletRequest.getHeader(HTTPHeaderConstants.CORRELATION_ID);
+        String requestTraceInfo = httpServletRequest.getHeader(HTTPHeaderConstants.REQUEST_TRACE_INFO);
+        log.info("Filter {}: {} executed. CorrelationId = {}, OriginService = {}",
+                httpServletRequest.getMethod(), httpServletRequest.getRequestURI(), correlationId, requestTraceInfo);
         if (correlationId == null) {
             correlationId = UUID.randomUUID().toString();
 
         }
-        if (serviceName == null) {
-            serviceName = "";
+        if (requestTraceInfo == null) {
+            requestTraceInfo = "";
         }
-        serviceName = serviceName + " -> corrid-test:" + httpServletRequest.getMethod()+":"+ httpServletRequest.getRequestURI();
+        requestTraceInfo = requestTraceInfo + " -> corrid-test:" + httpServletRequest.getMethod()+":"+ httpServletRequest.getRequestURI();
 
         InnerCallsConfig.correlationId.set(UUID.fromString(correlationId));
-        InnerCallsConfig.service.set(serviceName);
+        InnerCallsConfig.requestTraceInfo.set(requestTraceInfo);
         chain.doFilter(request, response);
     }
 
     @Override
     public void destroy() {
-
+        // Nothing to destroy here
     }
 }

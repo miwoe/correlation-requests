@@ -1,0 +1,15 @@
+
+This small approach showing how to better identify HTTP Requests in a distributed context in case where all your systems using HTTP to interact with each other.
+
+This approach is using Spring, but actually all you need to have is the ability to define Servlet Filters and adding HTTP Headers to your HTTP Request which is really simple in Spring.
+
+
+This approach:
+
+- Check if a correleation info exists in HTTP Request Header,
+if not generate one, else append your request info to the correlation info.
+
+- Put the correlation id in ThreadLocal
+- Whenever the thread invokes a HTTP Request put the correlation info into the HTTP Header
+
+

@@ -1,4 +1,4 @@
-package de.miwoe;
+package de.miwoe.config;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -23,9 +23,9 @@ public class CorrelationIDAspect {
     @Around("@annotation(org.springframework.web.bind.annotation.RequestMapping) && within(de.miwoe..*Controller)")
     public Object around(ProceedingJoinPoint point) throws Throwable {
         UUID correlationId = InnerCallsConfig.correlationId.get();
-        String serviceName = InnerCallsConfig.service.get();
+        String requestTraceInfo = InnerCallsConfig.requestTraceInfo.get();
         String methodName = MethodSignature.class.cast(point.getSignature()).getMethod().getName();
-        log.info("{} with correlationId {}, service {} executed", methodName, correlationId, serviceName);
+        log.info("{} with correlationId {}, trace {} executed", methodName, correlationId, requestTraceInfo);
         return point.proceed();
     }
 }
